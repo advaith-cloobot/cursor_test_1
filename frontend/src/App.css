@@ -1,0 +1,43 @@
+.App {
+  min-height: 100vh;
+  background-color: #0D0D0D;
+  color: #FFFFFF;
+}
+
+.app-header {
+  background-color: #1A1A1A;
+  padding: 24px 32px;
+  border-bottom: 0.5px solid #A8A8A8;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-header h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.app-main {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 20px 20px;
+  }
+
+  .app-header h1 {
+    font-size: 24px;
+  }
+
+  .app-main {
+    padding: 20px;
+  }
+}
+

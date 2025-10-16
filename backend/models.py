@@ -1,0 +1,46 @@
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+db = SQLAlchemy()
+
+class Album(db.Model):
+    __tablename__ = 'albums'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.Integer, nullable=False, default=1)
+    
+    # Relationship to photos
+    photos = db.relationship('Photo', backref='album', lazy=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'status': self.status
+        }
+
+class Photo(db.Model):
+    __tablename__ = 'photos'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    album_id = db.Column(db.Integer, db.ForeignKey('albums.id'), nullable=False)
+    original_filename = db.Column(db.Text, nullable=False)
+    stored_filename = db.Column(db.Text, nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.Integer, nullable=False, default=1)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'album_id': self.album_id,
+            'original_filename': self.original_filename,
+            'stored_filename': self.stored_filename,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'status': self.status
+        }
+

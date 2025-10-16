@@ -1,0 +1,193 @@
+.album-list-container {
+  width: 100%;
+}
+
+.album-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.album-list-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 32px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.create-album-btn {
+  background: linear-gradient(135deg, #C82FFF 0%, #00AAFF 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 100px;
+  padding: 12px 28px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(200, 47, 255, 0.3);
+}
+
+.create-album-btn:hover {
+  box-shadow: 0 6px 16px rgba(200, 47, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.create-album-btn:active {
+  transform: translateY(0);
+}
+
+.create-album-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #262626;
+  border-top: 3px solid #C82FFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-container p {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #A8A8A8;
+  margin: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-icon {
+  font-size: 80px;
+  color: #4D4D4D;
+}
+
+.empty-state h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.empty-state p {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: #A8A8A8;
+  margin: 0;
+  max-width: 400px;
+}
+
+.create-album-btn-large {
+  background: linear-gradient(135deg, #C82FFF 0%, #00AAFF 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 100px;
+  padding: 16px 32px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(200, 47, 255, 0.3);
+  margin-top: 16px;
+}
+
+.create-album-btn-large:hover {
+  box-shadow: 0 6px 16px rgba(200, 47, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.create-album-btn-large:active {
+  transform: translateY(0);
+}
+
+.create-album-btn-large .material-symbols-outlined {
+  font-size: 24px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .album-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .album-list-header h2 {
+    font-size: 24px;
+  }
+
+  .create-album-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .album-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .empty-icon {
+    font-size: 64px;
+  }
+
+  .empty-state h3 {
+    font-size: 20px;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+  }
+
+  .create-album-btn-large {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
