@@ -12,9 +12,7 @@ function AlbumCard({ album, onEdit, onDelete }) {
   const handleDelete = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete "${album.name}"?`)) {
-      onDelete(album.id);
-    }
+    onDelete(album.id);
   };
 
   return (

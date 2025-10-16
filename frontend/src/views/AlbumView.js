@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Photo from '../components/Photo';
 import PhotoUpload from '../components/PhotoUpload';
+import PhotoModal from '../components/PhotoModal';
+import Toast from '../components/Toast';
 import { getAlbumPhotos, uploadPhoto, deletePhoto } from '../api';
 import './AlbumView.css';
 
@@ -11,6 +13,9 @@ function AlbumView() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [albumName, setAlbumName] = useState('Album');
+  const [toast, setToast] = useState(null);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchPhotos();
@@ -45,6 +50,48 @@ function AlbumView() {
     }
   };
 
+  const handleMultiplePhotoUpload = async (files) => {
+    const fileArray = Array.from(files);
+    const successfulUploads = [];
+    const failedUploads = [];
+
+    // Upload files sequentially to provide better progress feedback
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      try {
+        const response = await uploadPhoto(albumId, file);
+        successfulUploads.push({ success: true, data: response.data, file: file.name });
+        
+        // Update photos state immediately for each successful upload
+        setPhotos(prevPhotos => [response.data, ...prevPhotos]);
+        
+      } catch (error) {
+        console.error(`Error uploading ${file.name}:`, error);
+        failedUploads.push({ success: false, error: error.message, file: file.name });
+      }
+    }
+
+    // Show user feedback
+    if (successfulUploads.length > 0 && failedUploads.length === 0) {
+      setToast({
+        message: `Successfully uploaded ${successfulUploads.length} photo(s)!`,
+        type: 'success'
+      });
+    } else if (successfulUploads.length > 0 && failedUploads.length > 0) {
+      setToast({
+        message: `Uploaded ${successfulUploads.length} photo(s) successfully. ${failedUploads.length} failed.`,
+        type: 'info'
+      });
+    } else if (failedUploads.length > 0) {
+      setToast({
+        message: `Failed to upload ${failedUploads.length} photo(s). Please try again.`,
+        type: 'error'
+      });
+    }
+
+    return [...successfulUploads, ...failedUploads];
+  };
+
   const handlePhotoDelete = async (photoId) => {
     try {
       await deletePhoto(albumId, photoId);
@@ -57,6 +104,20 @@ function AlbumView() {
 
   const handleBack = () => {
     navigate('/');
+  };
+
+  const handlePhotoPreview = (photo) => {
+    setSelectedPhoto(photo);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPhoto(null);
+  };
+
+  const handleModalDelete = (photoId) => {
+    handlePhotoDelete(photoId);
   };
 
   if (loading) {
@@ -80,7 +141,7 @@ function AlbumView() {
         <h2>{albumName}</h2>
       </div>
 
-      <PhotoUpload albumId={albumId} onUploadComplete={handlePhotoUpload} />
+      <PhotoUpload albumId={albumId} onUploadComplete={handleMultiplePhotoUpload} />
 
       {photos.length === 0 ? (
         <div className="empty-photos-state">
@@ -96,10 +157,27 @@ function AlbumView() {
               photo={photo}
               albumId={albumId}
               onDelete={handlePhotoDelete}
+              onPreview={handlePhotoPreview}
             />
           ))}
         </div>
       )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      <PhotoModal
+        photo={selectedPhoto}
+        albumId={albumId}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onDelete={handleModalDelete}
+      />
     </div>
   );
 }

@@ -166,14 +166,23 @@ def upload_photo(album_id):
         return jsonify({'error': 'Invalid file format. Allowed: PNG, JPEG, HEIC'}), 400
     
     try:
+        # Get original file size
+        original_size = len(file.read())
+        file.seek(0)  # Reset file pointer for compression
+        
         # Compress and save image
         stored_filename, file_path = compress_and_save_image(file, album_id)
+        
+        # Get compressed file size
+        stored_size = os.path.getsize(file_path)
         
         # Create photo record
         photo = Photo(
             album_id=album_id,
             original_filename=file.filename,
-            stored_filename=stored_filename
+            stored_filename=stored_filename,
+            original_size=original_size,
+            stored_size=stored_size
         )
         
         db.session.add(photo)

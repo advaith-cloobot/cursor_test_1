@@ -31,6 +31,8 @@ class Photo(db.Model):
     album_id = db.Column(db.Integer, db.ForeignKey('albums.id'), nullable=False)
     original_filename = db.Column(db.Text, nullable=False)
     stored_filename = db.Column(db.Text, nullable=False, unique=True)
+    original_size = db.Column(db.Integer, nullable=False)  # Original file size in bytes
+    stored_size = db.Column(db.Integer, nullable=False)    # Compressed file size in bytes
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.Integer, nullable=False, default=1)
     
@@ -40,6 +42,8 @@ class Photo(db.Model):
             'album_id': self.album_id,
             'original_filename': self.original_filename,
             'stored_filename': self.stored_filename,
+            'original_size': self.original_size,
+            'stored_size': self.stored_size,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'status': self.status
         }

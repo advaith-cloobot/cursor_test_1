@@ -4,6 +4,7 @@ import './PhotoUpload.css';
 function PhotoUpload({ albumId, onUploadComplete }) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const fileInputRef = useRef(null);
 
   const handleDragEnter = (e) => {
@@ -42,7 +43,8 @@ function PhotoUpload({ albumId, onUploadComplete }) {
   };
 
   const handleFiles = async (files) => {
-    const validFiles = Array.from(files).filter((file) => {
+    const fileArray = Array.from(files);
+    const validFiles = fileArray.filter((file) => {
       const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/heic', 'image/heif'];
       return validTypes.includes(file.type) || file.name.toLowerCase().endsWith('.heic');
     });
@@ -52,17 +54,23 @@ function PhotoUpload({ albumId, onUploadComplete }) {
       return;
     }
 
+    if (validFiles.length !== fileArray.length) {
+      const invalidCount = fileArray.length - validFiles.length;
+      alert(`${invalidCount} file(s) were skipped (invalid format). ${validFiles.length} valid file(s) will be uploaded.`);
+    }
+
     setUploading(true);
+    setUploadProgress({ current: 0, total: validFiles.length });
 
     try {
-      for (const file of validFiles) {
-        await onUploadComplete(file);
-      }
+      // Pass all valid files to the upload handler
+      await onUploadComplete(validFiles);
     } catch (error) {
       console.error('Upload error:', error);
       alert('Error uploading files. Please try again.');
     } finally {
       setUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -94,7 +102,17 @@ function PhotoUpload({ albumId, onUploadComplete }) {
         {uploading ? (
           <>
             <div className="upload-spinner"></div>
-            <p className="upload-text">Uploading...</p>
+            <p className="upload-text">
+              Uploading {uploadProgress.current} of {uploadProgress.total} photos...
+            </p>
+            {uploadProgress.total > 1 && (
+              <div className="upload-progress-bar">
+                <div 
+                  className="upload-progress-fill" 
+                  style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                ></div>
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -103,7 +121,7 @@ function PhotoUpload({ albumId, onUploadComplete }) {
               Drag & drop photos here or click to select
             </p>
             <p className="upload-subtext">
-              Supports PNG, JPEG, and HEIC formats
+              Select multiple photos at once • PNG, JPEG, HEIC formats
             </p>
           </>
         )}

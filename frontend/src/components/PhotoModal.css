@@ -1,0 +1,246 @@
+.photo-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.photo-modal-content {
+  background-color: #1A1A1A;
+  border: 0.5px solid #A8A8A8;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+}
+
+.photo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 0.5px solid #A8A8A8;
+  flex-shrink: 0;
+}
+
+.photo-modal-title h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: #FFFFFF;
+  margin: 0 0 8px 0;
+  word-break: break-word;
+}
+
+.photo-modal-file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-size-info {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #A8A8A8;
+}
+
+.compression-badge {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.photo-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.photo-modal-btn {
+  background-color: #262626;
+  border: none;
+  color: #FFFFFF;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.photo-modal-btn:hover {
+  background-color: #333333;
+  transform: scale(1.05);
+}
+
+.photo-modal-btn:active {
+  background-color: #404040;
+}
+
+.photo-modal-btn.download-btn:hover {
+  background-color: #2196F3;
+}
+
+.photo-modal-btn.delete-btn:hover {
+  background-color: #f44336;
+}
+
+.photo-modal-btn.close-btn:hover {
+  background-color: #666666;
+}
+
+.photo-modal-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.photo-modal-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.photo-modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.photo-modal-footer {
+  padding: 20px 24px;
+  border-top: 0.5px solid #A8A8A8;
+  flex-shrink: 0;
+}
+
+.photo-modal-metadata {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metadata-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #A8A8A8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metadata-value {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #FFFFFF;
+  word-break: break-word;
+}
+
+.metadata-value.compression-value {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .photo-modal-overlay {
+    padding: 10px;
+  }
+
+  .photo-modal-content {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .photo-modal-header {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .photo-modal-title h3 {
+    font-size: 18px;
+  }
+
+  .photo-modal-file-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .photo-modal-actions {
+    align-self: flex-end;
+  }
+
+  .photo-modal-body {
+    padding: 16px;
+  }
+
+  .photo-modal-footer {
+    padding: 16px 20px;
+  }
+
+  .photo-modal-metadata {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* Animation */
+.photo-modal-overlay {
+  animation: fadeIn 0.3s ease;
+}
+
+.photo-modal-content {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
