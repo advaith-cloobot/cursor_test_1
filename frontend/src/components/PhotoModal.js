@@ -1,9 +1,16 @@
-import React, { useEffect } from 'react';
-import { getPhotoUrl } from '../api';
+import React, { useEffect, useState, useRef } from 'react';
+import { getPhotoUrl, getPhotoFaces, updateFaceName, detectFacesOpenCV } from '../api';
 import { formatFileSize, getCompressionRatio } from '../utils/fileSize';
+import { drawFaceBoundingBoxes, clearCanvas, createFaceInputBoxes } from '../utils/faceDrawing';
 import './PhotoModal.css';
 
 function PhotoModal({ photo, albumId, isOpen, onClose, onDelete }) {
+  const [faces, setFaces] = useState([]);
+  const [detecting, setDetecting] = useState(false);
+  const [editingFace, setEditingFace] = useState(null);
+  const canvasRef = useRef(null);
+  const imageRef = useRef(null);
+
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') {
@@ -11,16 +18,120 @@ function PhotoModal({ photo, albumId, isOpen, onClose, onDelete }) {
       }
     };
 
+    const handleResize = () => {
+      // Redraw faces when window is resized (affects displayed image size)
+      if (faces.length > 0 && canvasRef.current && imageRef.current) {
+        // Update canvas size to match new displayed image size
+        const displayedWidth = imageRef.current.offsetWidth;
+        const displayedHeight = imageRef.current.offsetHeight;
+        canvasRef.current.width = displayedWidth;
+        canvasRef.current.height = displayedHeight;
+        canvasRef.current.style.width = displayedWidth + 'px';
+        canvasRef.current.style.height = displayedHeight + 'px';
+        
+        // Redraw faces with new dimensions
+        setTimeout(() => redrawFaces(), 100);
+      }
+    };
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
+      window.addEventListener('resize', handleResize);
       document.body.style.overflow = 'hidden';
+      // Reset faces state when opening modal
+      setFaces([]);
+      setEditingFace(null);
+      // Load existing faces first, then detect new ones
+      loadFaces();
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('resize', handleResize);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, photo]);
+
+  // Redraw faces when faces state changes
+  useEffect(() => {
+    if (isOpen && faces.length > 0) {
+      // Small delay to ensure canvas and image are ready
+      setTimeout(() => {
+        redrawFaces();
+      }, 100);
+    }
+  }, [faces, isOpen]);
+
+  const loadFaces = async () => {
+    if (!photo) return;
+    
+    try {
+      const response = await getPhotoFaces(albumId, photo.id);
+      setFaces(response.data);
+      
+      // Redraw face boxes if faces exist
+      if (response.data.length > 0 && canvasRef.current && imageRef.current) {
+        drawFaceBoundingBoxes(canvasRef.current, response.data, imageRef.current);
+      }
+      
+      // Always trigger face detection when opening image
+      // This will either detect new faces or refresh existing ones
+      setTimeout(() => autoDetectFaces(), 200);
+    } catch (error) {
+      console.error('Error loading faces:', error);
+      // Even if loading fails, still try to detect faces
+      setTimeout(() => autoDetectFaces(), 200);
+    }
+  };
+
+  const redrawFaces = () => {
+    if (faces.length > 0 && canvasRef.current && imageRef.current) {
+      clearCanvas(canvasRef.current);
+      drawFaceBoundingBoxes(canvasRef.current, faces, imageRef.current);
+    }
+  };
+
+  const autoDetectFaces = async () => {
+    if (!imageRef.current || detecting) return; // Only prevent if currently detecting
+    
+    setDetecting(true);
+    try {
+      // Use OpenCV face detection on the backend
+      const response = await detectFacesOpenCV(albumId, photo.id);
+      
+      if (response.data.faces && response.data.faces.length > 0) {
+        setFaces(response.data.faces);
+        
+        // Draw face boxes on canvas
+        if (canvasRef.current) {
+          clearCanvas(canvasRef.current);
+          drawFaceBoundingBoxes(canvasRef.current, response.data.faces, imageRef.current);
+        }
+      } else {
+        console.log('No faces detected by OpenCV');
+        // Clear any existing faces if no new ones detected
+        setFaces([]);
+      }
+    } catch (error) {
+      console.error('Error in OpenCV face detection:', error);
+    } finally {
+      setDetecting(false);
+    }
+  };
+
+
+  const handleFaceNameChange = async (faceId, name) => {
+    try {
+      await updateFaceName(albumId, faceId, name);
+      setFaces(faces.map(face => 
+        face.id === faceId ? { ...face, name } : face
+      ));
+      setEditingFace(null);
+    } catch (error) {
+      console.error('Error updating face name:', error);
+      alert('Error updating face name. Please try again.');
+    }
+  };
 
   if (!isOpen || !photo) return null;
 
@@ -83,11 +194,77 @@ function PhotoModal({ photo, albumId, isOpen, onClose, onDelete }) {
         </div>
         
         <div className="photo-modal-body">
-          <img
-            src={getPhotoUrl(albumId, photo.stored_filename)}
-            alt={photo.original_filename}
-            className="photo-modal-image"
-          />
+          <div className="photo-container">
+            <img
+              ref={imageRef}
+              src={getPhotoUrl(albumId, photo.stored_filename)}
+              alt={photo.original_filename}
+              className="photo-modal-image"
+              onLoad={() => {
+                if (canvasRef.current && imageRef.current) {
+                  // Set canvas size to match the displayed image size, not natural size
+                  const displayedWidth = imageRef.current.offsetWidth;
+                  const displayedHeight = imageRef.current.offsetHeight;
+                  canvasRef.current.width = displayedWidth;
+                  canvasRef.current.height = displayedHeight;
+                  canvasRef.current.style.width = displayedWidth + 'px';
+                  canvasRef.current.style.height = displayedHeight + 'px';
+                }
+                // Redraw existing faces if any (detection is handled in loadFaces)
+                setTimeout(() => redrawFaces(), 100);
+              }}
+            />
+            <canvas
+              ref={canvasRef}
+              className="face-detection-canvas"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                pointerEvents: 'none'
+              }}
+            />
+            {/* Face input boxes positioned below face boxes */}
+            {faces.length > 0 && imageRef.current && createFaceInputBoxes(
+              faces, 
+              imageRef.current, 
+              handleFaceNameChange, 
+              editingFace, 
+              setEditingFace
+            )}
+          </div>
+          
+          <div className="faces-section">
+            <h4>Detected Faces</h4>
+            {faces.length > 0 ? (
+              <div className="faces-list">
+                {faces.map((face, index) => (
+                  <div key={face.id} className="face-item">
+                    <div className="face-info">
+                      <span className="face-number">Face {index + 1}</span>
+                      <span className="face-confidence">
+                        {Math.round(face.confidence * 100)}% confidence
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="no-faces-message">
+                <span className="material-symbols-outlined">face</span>
+                <p>No faces detected yet. Face detection will run automatically when you view this photo.</p>
+              </div>
+            )}
+          </div>
+          
+          {detecting && (
+            <div className="face-detection-section">
+              <div className="detecting-faces-message">
+                <div className="detecting-spinner"></div>
+                <span>Detecting faces...</span>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="photo-modal-footer">

@@ -4,6 +4,14 @@
 
 .album-view-header {
   margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.album-view-header h2 {
+  flex: 1;
 }
 
 .back-btn {
@@ -33,6 +41,33 @@
 
 .back-btn .material-symbols-outlined {
   font-size: 20px;
+}
+
+.face-library-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #C82FFF 0%, #00AAFF 100%);
+  color: #FFFFFF;
+  text-decoration: none;
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(200, 47, 255, 0.3);
+}
+
+.face-library-btn:hover {
+  box-shadow: 0 6px 16px rgba(200, 47, 255, 0.4);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.face-library-btn .material-symbols-outlined {
+  font-size: 18px;
 }
 
 .album-view-header h2 {

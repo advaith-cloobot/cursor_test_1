@@ -36,6 +36,9 @@ class Photo(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.Integer, nullable=False, default=1)
     
+    # Relationship to faces
+    faces = db.relationship('Face', backref='photo', lazy=True)
+    
     def to_dict(self):
         return {
             'id': self.id,
@@ -44,6 +47,36 @@ class Photo(db.Model):
             'stored_filename': self.stored_filename,
             'original_size': self.original_size,
             'stored_size': self.stored_size,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'status': self.status
+        }
+
+class Face(db.Model):
+    __tablename__ = 'faces'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    photo_id = db.Column(db.Integer, db.ForeignKey('photos.id'), nullable=False)
+    album_id = db.Column(db.Integer, db.ForeignKey('albums.id'), nullable=False)
+    name = db.Column(db.Text, nullable=True)  # User-assigned name
+    confidence = db.Column(db.Float, nullable=False)  # Detection confidence
+    bbox_x = db.Column(db.Float, nullable=False)  # Bounding box x coordinate (0-1)
+    bbox_y = db.Column(db.Float, nullable=False)  # Bounding box y coordinate (0-1)
+    bbox_width = db.Column(db.Float, nullable=False)  # Bounding box width (0-1)
+    bbox_height = db.Column(db.Float, nullable=False)  # Bounding box height (0-1)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.Integer, nullable=False, default=1)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'photo_id': self.photo_id,
+            'album_id': self.album_id,
+            'name': self.name,
+            'confidence': self.confidence,
+            'bbox_x': self.bbox_x,
+            'bbox_y': self.bbox_y,
+            'bbox_width': self.bbox_width,
+            'bbox_height': self.bbox_height,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'status': self.status
         }

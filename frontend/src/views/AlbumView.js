@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Photo from '../components/Photo';
 import PhotoUpload from '../components/PhotoUpload';
 import PhotoModal from '../components/PhotoModal';
@@ -25,7 +25,8 @@ function AlbumView() {
     try {
       setLoading(true);
       const response = await getAlbumPhotos(albumId);
-      setPhotos(response.data);
+      setPhotos(response.data.photos);
+      setAlbumName(response.data.album_name);
     } catch (error) {
       console.error('Error fetching photos:', error);
       if (error.response?.status === 404) {
@@ -65,6 +66,9 @@ function AlbumView() {
         // Update photos state immediately for each successful upload
         setPhotos(prevPhotos => [response.data, ...prevPhotos]);
         
+        // Note: Face detection will happen automatically when user clicks on the photo
+        console.log(`Photo ${file.name} uploaded successfully. Face detection will occur when viewing the photo.`);
+        
       } catch (error) {
         console.error(`Error uploading ${file.name}:`, error);
         failedUploads.push({ success: false, error: error.message, file: file.name });
@@ -74,7 +78,7 @@ function AlbumView() {
     // Show user feedback
     if (successfulUploads.length > 0 && failedUploads.length === 0) {
       setToast({
-        message: `Successfully uploaded ${successfulUploads.length} photo(s)!`,
+        message: `Successfully uploaded ${successfulUploads.length} photo(s)! Face detection will occur when viewing photos.`,
         type: 'success'
       });
     } else if (successfulUploads.length > 0 && failedUploads.length > 0) {
@@ -139,6 +143,10 @@ function AlbumView() {
           <span>Back to Albums</span>
         </button>
         <h2>{albumName}</h2>
+        <Link to={`/album/${albumId}/faces`} className="face-library-btn">
+          <span className="material-symbols-outlined">face</span>
+          Face Library
+        </Link>
       </div>
 
       <PhotoUpload albumId={albumId} onUploadComplete={handleMultiplePhotoUpload} />

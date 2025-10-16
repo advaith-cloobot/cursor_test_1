@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AlbumList from './views/AlbumList';
 import AlbumView from './views/AlbumView';
+import FaceLibrary from './views/FaceLibrary';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<AlbumList />} />
             <Route path="/album/:albumId" element={<AlbumView />} />
+            <Route path="/album/:albumId/faces" element={<FaceLibrary />} />
           </Routes>
         </main>
       </div>

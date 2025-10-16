@@ -32,5 +32,17 @@ export const deletePhoto = (albumId, photoId) => api.delete(`/albums/${albumId}/
 
 export const getPhotoUrl = (albumId, filename) => `${API_BASE_URL}/uploads/${albumId}/${filename}`;
 
+// Face detection APIs
+export const getPhotoFaces = (albumId, photoId) => api.get(`/albums/${albumId}/photos/${photoId}/faces`);
+
+
+export const updateFaceName = (albumId, faceId, name) => api.put(`/albums/${albumId}/faces/${faceId}`, { name });
+
+export const deleteFace = (albumId, faceId) => api.delete(`/albums/${albumId}/faces/${faceId}`);
+
+export const getAlbumFaces = (albumId) => api.get(`/albums/${albumId}/faces`);
+
+export const detectFacesOpenCV = (albumId, photoId) => api.post(`/albums/${albumId}/photos/${photoId}/detect-faces`);
+
 export default api;
 
